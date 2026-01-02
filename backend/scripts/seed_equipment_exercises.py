@@ -8,7 +8,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 data_path = BASE_DIR / "data" / "gym_exercises.xlsx"
 
 df = pd.read_excel(data_path)
-print(df.head())
 
 df["Exercise_Name"] = df["Exercise_Name"].str.strip()
 df["muscle_gp"] = df["muscle_gp"].str.strip()
