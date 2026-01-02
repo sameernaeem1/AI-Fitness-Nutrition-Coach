@@ -1,5 +1,5 @@
-from database import Base
-from schemas import Gender, Goal, ExperienceLevel, LogType
+from backend.app.database import Base
+from backend.app.schemas import Gender, Goal, ExperienceLevel, LogType
 from sqlalchemy import Column, Integer, String, Float, Date, Enum, ForeignKey, Table, JSON, TIMESTAMP
 from sqlalchemy.orm import relationship
 
@@ -54,6 +54,7 @@ class Equipment(Base):
     name = Column(String, unique=True, nullable=False)
 
     profiles = relationship("UserProfile", secondary=user_equipment, back_populates="equipment")
+    exercises = relationship("Exercise", back_populates="equipment")
 
 class Injury(Base):
     __tablename__ = "injuries"
@@ -69,7 +70,7 @@ class Exercise(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, nullable=False)
     target_muscle = Column(String, nullable=False)
-    difficulty_tier = Column(Integer, nullable=False)
+    difficulty_tier = Column(Integer, nullable=True) #Come back to this at later time
     equipment_id = Column(Integer, ForeignKey("equipment.id"), nullable=True)
 
     equipment = relationship("Equipment", back_populates="exercises")
@@ -78,6 +79,7 @@ class Workout(Base):
     __tablename__ = "workouts"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     date = Column(Date, nullable=False)
     exercise_list = Column(JSON, nullable=False)
 
