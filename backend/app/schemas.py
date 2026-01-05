@@ -70,6 +70,11 @@ class UserProfileRead(UserProfileBase):
         from_attributes=True
 
 
+class OnboardingCreate(BaseModel):
+    user: UserCreate
+    profile: UserProfileCreate
+
+
 class EquipmentBase(BaseModel):
     name: str
 
