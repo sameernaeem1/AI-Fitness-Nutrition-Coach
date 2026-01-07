@@ -3,15 +3,15 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from jose import jwt, JWTError
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import os
 from dotenv import load_dotenv
 from pathlib import Path
 from typing import Annotated
 
 from backend.app.database import get_db
-from backend.app.models import User, UserProfile, Equipment, Injuries
-from backend.app.schemas import UserCreate, OnboardingCreate, UserProfileRead, EquipmentRead, InjuryRead, Token
+from backend.app.models import User, UserProfile, Equipment, Injury
+from backend.app.schemas import OnboardingCreate, UserProfileRead, EquipmentRead, InjuryRead, Token, UpdateEquipment, UpdateInjuries
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -20,6 +20,7 @@ load_dotenv(env_path)
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -53,9 +54,12 @@ def get_current_user(token: token_dependency, db: db_dependency):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
     return user
 
-def create_access_token(username: str, user_id: int, expires_delta: timedelta):
+def create_access_token(username: str, user_id: int, expires_delta: timedelta | None = None):
     encode = {'sub': username, 'id': user_id}
-    expires = datetime.utcnow() + expires_delta
+    if expires_delta:
+        expires = datetime.now(timezone.utc) + expires_delta
+    else:
+        expires = datetime.now(timezone.utc) + timedelta(minutes=20)
     encode.update({'exp': expires})
     return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
 
@@ -66,6 +70,12 @@ def decode_token(token: str):
     except JWTError:
         return None
 
+def get_bodyweight_id(db: Session):
+    item = db.query(Equipment).filter(Equipment.name.ilike("bodyweight")).first()
+    if not item:
+        raise HTTPException(status_code=500, detail="Bodyweight missing from equipment table")
+    return item
+
 
 @router.get("/equipment", response_model=list[EquipmentRead])
 def list_equipment(db: db_dependency):
@@ -74,7 +84,7 @@ def list_equipment(db: db_dependency):
 
 @router.get("/injuries", response_model=list[InjuryRead])
 def list_equipment(db: db_dependency):
-    return db.query(Injuries).all()
+    return db.query(Injury).all()
 
 
 @router.get("/me", response_model=UserProfileRead)
@@ -111,16 +121,22 @@ def signup(payload: OnboardingCreate, db: db_dependency):
         frequency=prof.frequency,
     )
 
+    bodyweight_id = get_bodyweight_id(db)
+    selected = []
     if prof.equipment_ids:
-        profile.equipment = db.query(Equipment).filter(Equipment.id.in_(prof.equipment_ids)).all()
+        selected = db.query(Equipment).filter(Equipment.id.in_(prof.equipment_ids)).all()
+    if bodyweight_id not in selected:
+        selected.append(bodyweight_id)
+    profile.equipment = selected
+
     if prof.injury_ids:
-        profile.injuries = db.query(Injuries).filter(Injuries.id.in_(prof.injury_ids)).all()
+        profile.injuries = db.query(Injury).filter(Injury.id.in_(prof.injury_ids)).all()
     
     db.add(profile)
     db.commit()
     db.refresh(profile)
 
-    token = create_access_token(user.email, user.id, timedelta(minutes=20))
+    token = create_access_token(user.email, user.id, expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     return {"access_token": token, "token_type": "bearer"}
 
 
@@ -129,16 +145,33 @@ def signin(form_data: form_dependency, db: db_dependency):
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect email or password")
-    token = create_access_token(user.email, user.id, timedelta(minutes=20))
+    token = create_access_token(user.email, user.id, expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     return {"access_token": token, "token_type": "bearer"}
 
 
-# @router.post("/me/equipment", response_model=UserProfileRead)
-# def add_equipment(payload: EquipmentRead, db: Session = Depends(get_db)):
-#     pass
+@router.put("/me/equipment", response_model=UserProfileRead)
+def update_equipment(payload: UpdateEquipment, current_user: User = Depends(get_current_user), db: db_dependency = Depends()):
+    profile = db.query(UserProfile).filter(UserProfile.user_id == current_user.id).first()
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    new_equipment = db.query(Equipment).filter(Equipment.id.in_(payload.equipment_ids)).all()
+    bodyweight_id = get_bodyweight_id(db)
+    if bodyweight_id not in new_equipment:
+        new_equipment.append(bodyweight_id)
+    profile.equipment = new_equipment
+    db.commit()
+    db.refresh(profile)
+    return profile
 
 
-# @router.post("/me/injuries", response_model=UserProfileRead)
-# def add_injuries(payload: InjuryRead, db: Session = Depends(get_db)):
-#     pass
+@router.put("/me/injuries", response_model=UserProfileRead)
+def update_injuries(payload: UpdateInjuries, current_user: User = Depends(get_current_user), db: db_dependency = Depends()):
+    profile = db.query(UserProfile).filter(UserProfile.user_id == current_user.id).first()
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    new_injuries = db.query(Injury).filter(Injury.id.in_(payload.injury_ids)).all()
+    profile.injuries = new_injuries
+    db.commit()
+    db.refresh(profile)
+    return profile
 

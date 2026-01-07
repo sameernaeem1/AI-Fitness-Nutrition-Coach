@@ -92,6 +92,9 @@ class EquipmentRead(EquipmentBase):
     class Config:
         from_attributes=True
 
+class UpdateEquipment(BaseModel):
+    equipment_ids: list[int]
+
 
 class InjuryBase(BaseModel):
     name: str
@@ -104,6 +107,9 @@ class InjuryRead(InjuryBase):
 
     class Config:
         from_attributes=True
+
+class UpdateInjuries(BaseModel):
+    injury_ids: list[int]
 
 
 class ExerciseBase(BaseModel):
