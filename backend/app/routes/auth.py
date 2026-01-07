@@ -11,7 +11,7 @@ from typing import Annotated
 
 from backend.app.database import get_db
 from backend.app.models import User, UserProfile, Equipment, Injury
-from backend.app.schemas import OnboardingCreate, UserProfileRead, EquipmentRead, InjuryRead, Token, UpdateEquipment, UpdateInjuries
+from backend.app.schemas import OnboardingCreate, UserProfileRead, EquipmentRead, InjuryRead, Token, UpdateEquipment, UpdateInjuries, UserProfileUpdate
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -174,4 +174,26 @@ def update_injuries(payload: UpdateInjuries, current_user: User = Depends(get_cu
     db.commit()
     db.refresh(profile)
     return profile
+
+
+@router.put("/me/profile", response_model=UserProfileRead)
+def update_profile(payload: UserProfileUpdate, current_user: User = Depends(get_current_user), db: db_dependency = Depends()):
+    profile = db.query(UserProfile).filter(UserProfile.user_id == current_user.id).first()
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    profile.first_name = payload.first_name
+    profile.last_name = payload.last_name
+    profile.birth_date = payload.birth_date
+    profile.gender = payload.gender
+    profile.height_cm = payload.height_cm
+    profile.weight_kg = payload.weight_kg
+    profile.experience_level = payload.experience_level
+    profile.goal = payload.goal
+    profile.frequency = payload.frequency
+    
+    db.commit()
+    db.refresh(profile)
+    return profile
+
 

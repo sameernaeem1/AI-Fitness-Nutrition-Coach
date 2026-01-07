@@ -45,8 +45,6 @@ class UserProfileBase(BaseModel):
     experience_level: ExperienceLevel
     goal: Goal
     frequency: int = Field(..., ge=1, le=7)
-    injury_ids: list[int] = Field(default_factory=list)
-    equipment_ids: list[int] = Field(default_factory=list)
 
     @field_validator("birth_date")
     @classmethod
@@ -60,14 +58,20 @@ class UserProfileBase(BaseModel):
         return dob
 
 class UserProfileCreate(UserProfileBase):
-    pass
+    injury_ids: list[int] = Field(default_factory=list)
+    equipment_ids: list[int] = Field(default_factory=list)
 
 class UserProfileRead(UserProfileBase):
     id: int
     user_id: int
+    injury_ids: list[int] = Field(default_factory=list)
+    equipment_ids: list[int] = Field(default_factory=list)
 
     class Config:
         from_attributes=True
+
+class UserProfileUpdate(UserProfileBase):
+    pass
 
 
 class OnboardingCreate(BaseModel):
