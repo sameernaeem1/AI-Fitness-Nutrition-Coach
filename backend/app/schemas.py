@@ -75,6 +75,11 @@ class OnboardingCreate(BaseModel):
     profile: UserProfileCreate
 
 
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
 class EquipmentBase(BaseModel):
     name: str
 
