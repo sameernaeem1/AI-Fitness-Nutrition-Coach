@@ -24,7 +24,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/sign-in")
 
 pwd_hash = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -44,7 +44,7 @@ def authenticate_user(db: Session, email:str, password: str):
 def get_current_user(token: token_dependency, db: db_dependency):
     payload = decode_token(token)
     if not payload:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
     email: str = payload.get('sub')
     user_id: int = payload.get('id')
     if not email or not user_id:
@@ -83,7 +83,7 @@ def list_equipment(db: db_dependency):
 
 
 @router.get("/injuries", response_model=list[InjuryRead])
-def list_equipment(db: db_dependency):
+def list_injuries(db: db_dependency):
     return db.query(Injury).all()
 
 

@@ -4,11 +4,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from backend.app.database import Base, engine
 import backend.app.models as models
-from backend.app.routes.auth import router as auth_router
+from backend.app.routes import auth, workouts
 
 app = FastAPI()
 
-app.include_router(auth_router)
+app.include_router(auth.router)
+app.include_router(workouts.router)
 
 @app.get("/")
 def root():
