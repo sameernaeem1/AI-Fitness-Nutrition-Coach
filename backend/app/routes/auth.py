@@ -88,7 +88,7 @@ def list_injuries(db: db_dependency):
 
 
 @router.get("/me", response_model=UserProfileRead)
-def my_profile(current_user: User = Depends(get_current_user), db: db_dependency = Depends()):
+def my_profile(db: db_dependency, current_user: User = Depends(get_current_user)):
     profile = db.query(UserProfile).filter(UserProfile.user_id == current_user.id).first()
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
@@ -150,7 +150,7 @@ def signin(form_data: form_dependency, db: db_dependency):
 
 
 @router.put("/me/equipment", response_model=UserProfileRead)
-def update_equipment(payload: UpdateEquipment, current_user: User = Depends(get_current_user), db: db_dependency = Depends()):
+def update_equipment(payload: UpdateEquipment, db: db_dependency, current_user: User = Depends(get_current_user)):
     profile = db.query(UserProfile).filter(UserProfile.user_id == current_user.id).first()
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
@@ -165,7 +165,7 @@ def update_equipment(payload: UpdateEquipment, current_user: User = Depends(get_
 
 
 @router.put("/me/injuries", response_model=UserProfileRead)
-def update_injuries(payload: UpdateInjuries, current_user: User = Depends(get_current_user), db: db_dependency = Depends()):
+def update_injuries(payload: UpdateInjuries, db: db_dependency, current_user: User = Depends(get_current_user)):
     profile = db.query(UserProfile).filter(UserProfile.user_id == current_user.id).first()
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
@@ -177,7 +177,7 @@ def update_injuries(payload: UpdateInjuries, current_user: User = Depends(get_cu
 
 
 @router.put("/me/profile", response_model=UserProfileRead)
-def update_profile(payload: UserProfileUpdate, current_user: User = Depends(get_current_user), db: db_dependency = Depends()):
+def update_profile(payload: UserProfileUpdate, db: db_dependency, current_user: User = Depends(get_current_user)):
     profile = db.query(UserProfile).filter(UserProfile.user_id == current_user.id).first()
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")

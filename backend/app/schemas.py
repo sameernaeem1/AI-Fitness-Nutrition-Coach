@@ -1,6 +1,8 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from __future__ import annotations
+from pydantic import BaseModel, EmailStr, Field, field_validator, computed_field
 from enum import Enum
 from datetime import date
+
 
 class Gender(str, Enum):
     male = "male"
@@ -64,8 +66,18 @@ class UserProfileCreate(UserProfileBase):
 class UserProfileRead(UserProfileBase):
     id: int
     user_id: int
-    injury_ids: list[int] = Field(default_factory=list)
-    equipment_ids: list[int] = Field(default_factory=list)
+    equipment: list[EquipmentRead] = []
+    injuries: list[InjuryRead] = []
+
+    # @computed_field(return_type=list[int])
+    # def equipment_ids(self) -> list[int]:
+    #     items = getattr(self, "equipment", None) or []
+    #     return [int(getattr(e, "id")) for e in items]
+    
+    # @computed_field(return_type=list[int])
+    # def injury_ids(self) -> list[int]:
+    #     items = getattr(self, "injuries", None) or []
+    #     return [int(getattr(i, "id")) for i in items]
 
     class Config:
         from_attributes=True
