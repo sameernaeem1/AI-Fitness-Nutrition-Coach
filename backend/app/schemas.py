@@ -1,6 +1,8 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from __future__ import annotations
+from pydantic import BaseModel, EmailStr, Field, field_validator, computed_field
 from enum import Enum
 from datetime import date
+
 
 class Gender(str, Enum):
     male = "male"
@@ -45,8 +47,6 @@ class UserProfileBase(BaseModel):
     experience_level: ExperienceLevel
     goal: Goal
     frequency: int = Field(..., ge=1, le=7)
-    injury_ids: list[int] = Field(default_factory=list)
-    equipment_ids: list[int] = Field(default_factory=list)
 
     @field_validator("birth_date")
     @classmethod
@@ -60,14 +60,40 @@ class UserProfileBase(BaseModel):
         return dob
 
 class UserProfileCreate(UserProfileBase):
-    pass
+    injury_ids: list[int] = Field(default_factory=list)
+    equipment_ids: list[int] = Field(default_factory=list)
 
 class UserProfileRead(UserProfileBase):
     id: int
     user_id: int
+    equipment: list[EquipmentRead] = []
+    injuries: list[InjuryRead] = []
+
+    # @computed_field(return_type=list[int])
+    # def equipment_ids(self) -> list[int]:
+    #     items = getattr(self, "equipment", None) or []
+    #     return [int(getattr(e, "id")) for e in items]
+    
+    # @computed_field(return_type=list[int])
+    # def injury_ids(self) -> list[int]:
+    #     items = getattr(self, "injuries", None) or []
+    #     return [int(getattr(i, "id")) for i in items]
 
     class Config:
         from_attributes=True
+
+class UserProfileUpdate(UserProfileBase):
+    pass
+
+
+class OnboardingCreate(BaseModel):
+    user: UserCreate
+    profile: UserProfileCreate
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
 
 
 class EquipmentBase(BaseModel):
@@ -82,6 +108,9 @@ class EquipmentRead(EquipmentBase):
     class Config:
         from_attributes=True
 
+class UpdateEquipment(BaseModel):
+    equipment_ids: list[int]
+
 
 class InjuryBase(BaseModel):
     name: str
@@ -94,6 +123,9 @@ class InjuryRead(InjuryBase):
 
     class Config:
         from_attributes=True
+
+class UpdateInjuries(BaseModel):
+    injury_ids: list[int]
 
 
 class ExerciseBase(BaseModel):

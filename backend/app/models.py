@@ -85,6 +85,7 @@ class Workout(Base):
 
     user = relationship("User", back_populates="workouts")
 
+#Come back to this later
 class Log(Base):
     __tablename__ = "logs"
 
