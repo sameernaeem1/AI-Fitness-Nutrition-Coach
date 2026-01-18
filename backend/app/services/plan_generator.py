@@ -26,9 +26,16 @@ def generate_workout_plan(prompt):
 def build_prompt(profile, exercises):
     return f"""
     Create an effective 4 week workout plan specifically tailored for the user profile below. Your answer must be strictly JSON.
+    Guide:
+    - For each workout day, include 5-8 exercises that together take approximately 60 minutes to complete (including rest periods)
+    - For each workout day, group together exercises so that the user can hit all main muscle groups effectively in a week given their weekly frequency, so they have a structured split (e.g. push,pull,legs / upper, lower etc)
+    - Do not include duplicate or nearly-identical exercises on the same day (e.g. Barbell full squat and Barbell squat)
 
     User Profile:
+    Gender: {profile.gender}
     Goal: {profile.goal}
+    Height in cm: {profile.height_cm}
+    Weight in kg: {profile.weight_kg}
     Experience Level: {profile.experience_level}
     Weekly Frequency: {profile.frequency}
     Equipment Available: {[e.name for e in profile.equipment]}
@@ -37,7 +44,7 @@ def build_prompt(profile, exercises):
     Available exercises (Only choose from these and make sure they are suitable for the user given their profile details, try to pick more conventional exercises that the user will be able to easily understand):
     {[
         {
-            "id": e.name,
+            "id": e.id,
             "name": e.name,
             "muscle": e.target_muscle,
             "equipment": e.equipment.name if e.equipment else None
@@ -45,7 +52,7 @@ def build_prompt(profile, exercises):
         for e in exercises
     ]}
 
-    Format the ouput in JSON so it has the following structure:
+    Format the ouput in JSON so it has the following structure (provide cumulative offsets from the first day of the plan):
     {{
         "weeks": [
         {{
@@ -61,6 +68,7 @@ def build_prompt(profile, exercises):
                     "sets": 3,
                     "reps": "10-12",
                     "suggested_weight": "40kg-45kg",
+                    "suggested_rest_period": "60 seconds",
                     "notes": "Do a couple of warm up sets with light weight if needed"
                 }}
                 ]
