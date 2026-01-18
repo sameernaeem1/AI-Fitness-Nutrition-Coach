@@ -25,7 +25,7 @@ def generate_and_store_plan(db: Session, user):
 
         # Delete next 4 weeks to avoid duplicate entries if user regenerates plan
         next_month = today + timedelta(days=28)
-        db.query(Workout).filter(Workout.user_id == user.id, Workout.date >= today).delete(synchronize_session=False)
+        db.query(Workout).filter(Workout.user_id == user.id, Workout.date >= today, Workout.date <= next_month).delete(synchronize_session=False)
 
         for week in plan["weeks"]:
             for day in week["days"]:
