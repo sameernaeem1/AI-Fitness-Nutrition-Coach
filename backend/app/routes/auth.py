@@ -121,16 +121,18 @@ def signup(payload: OnboardingCreate, db: db_dependency):
         frequency=prof.frequency,
     )
 
-    bodyweight_id = get_bodyweight_id(db)
+    bodyweight = get_bodyweight_id(db)
     selected = []
     if prof.equipment_ids:
         selected = db.query(Equipment).filter(Equipment.id.in_(prof.equipment_ids)).all()
-    if bodyweight_id not in selected:
-        selected.append(bodyweight_id)
+    if bodyweight.id not in [e.id for e in selected]:
+        selected.append(bodyweight)
     profile.equipment = selected
 
     if prof.injury_ids:
         profile.injuries = db.query(Injury).filter(Injury.id.in_(prof.injury_ids)).all()
+    else:
+        profile.injuries = []
     
     db.add(profile)
     db.commit()
@@ -155,9 +157,9 @@ def update_equipment(payload: UpdateEquipment, db: db_dependency, current_user: 
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
     new_equipment = db.query(Equipment).filter(Equipment.id.in_(payload.equipment_ids)).all()
-    bodyweight_id = get_bodyweight_id(db)
-    if bodyweight_id not in new_equipment:
-        new_equipment.append(bodyweight_id)
+    bodyweight = get_bodyweight_id(db)
+    if bodyweight.id not in [e.id for e in new_equipment]:
+        new_equipment.append(bodyweight)
     profile.equipment = new_equipment
     db.commit()
     db.refresh(profile)
