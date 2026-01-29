@@ -18,7 +18,7 @@ export default function Dashboard() {
             <Sidebar activeTab={activeTab} setActiveTab={handleTabChange} />
             <div className="flex-1 bg-gray-100 overflow-auto">
                 <div className="p-8">
-                    {activeTab === 'plan' && <WorkoutPlan />}
+                    {activeTab === 'plan' && <WorkoutPlan setActiveTab={setActiveTab} />}
                     {activeTab === 'calendar' && <Calendar />}
                 </div>
             </div>
