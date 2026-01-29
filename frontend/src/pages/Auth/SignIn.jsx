@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { authService } from '../../services/authService';
-import api from '../../services/api';
 
 export default function SignIn() {
   const [formData, setFormData] = useState({

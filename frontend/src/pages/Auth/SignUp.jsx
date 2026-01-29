@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../../services/authService';
 import { useAuth } from '../../hooks/useAuth';
-import api from '../../services/api';
 
 export default function SignUp() {
     const [formData, setFormData] = useState({

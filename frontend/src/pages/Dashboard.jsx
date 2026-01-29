@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import Sidebar from '../../components/Sidebar';
-import WorkoutPlan from '../WorkoutPlan';
-import Calendar from '../Calendar';
+import Sidebar from '../components/Sidebar';
+import WorkoutPlan from './WorkoutPlan';
+import Calendar from './Calendar';
 
 export default function Dashboard() {
     const [activeTab, setActiveTab] = useState(() => {

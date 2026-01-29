@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { workoutService } from '../../services/workoutService';
+import { workoutService } from '../services/workoutService';
 
 export default function WorkoutPlan({ setActiveTab }) {
     const [loading, setLoading] = useState(false);
