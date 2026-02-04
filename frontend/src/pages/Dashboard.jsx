@@ -2,10 +2,11 @@ import { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import WorkoutPlan from './WorkoutPlan';
 import Calendar from './Calendar';
+import Settings from './Settings'
 
 export default function Dashboard() {
     const [activeTab, setActiveTab] = useState(() => {
-        return localStorage,getItem('lastTab') || 'plan';
+        return localStorage.getItem('lastTab') || 'plan';
     });
 
     const handleTabChange = (tab) => {
@@ -20,6 +21,7 @@ export default function Dashboard() {
                 <div className="p-8">
                     {activeTab === 'plan' && <WorkoutPlan setActiveTab={setActiveTab} />}
                     {activeTab === 'calendar' && <Calendar />}
+                    {activeTab === 'settings' && <Settings />}
                 </div>
             </div>
         </div>

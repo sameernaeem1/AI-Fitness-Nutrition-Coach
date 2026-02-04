@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { workoutService } from '../services/workoutService'
+import WorkoutDetailModal from './WorkoutDetailModal'
 
 export default function Calendar() {
     const [workouts, setWorkouts] = useState([]);
+    const [selectedWorkout, setSelectedWorkout] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -104,8 +106,11 @@ export default function Calendar() {
                                 {day && <div className="font-bold text-gray-800 mb-2">{day}</div>}
 
                                 {day && workout && (
-                                    <div className="text-xs bg-blue-500 text-white p-2 rounded shadow-sm cursor-pointer hover:bg-blue-600">
-                                        Workout Plan
+                                    <div
+                                        onClick={() => setSelectedWorkout(workout)}
+                                        className="text-xs bg-blue-500 text-white p-2 rounded shadow-sm cursor-pointer hover:bg-blue-600"
+                                    >
+                                        Scheduled Workout
                                     </div>
                                 )}
                             </div>
@@ -113,6 +118,10 @@ export default function Calendar() {
                     })}
                 </div>
             </div>
+            <WorkoutDetailModal
+                workout={selectedWorkout}
+                onClose={() => setSelectedWorkout(null)}
+            />
         </div>
     );
 }

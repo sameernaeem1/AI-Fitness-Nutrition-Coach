@@ -7,6 +7,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
     const tabs = [
         { id: 'plan', label: 'Generate Plan', icon: '' },
         { id: 'calendar', label: 'Calendar', icon: '' },
+        { id: 'settings', label: 'Settings', icon: '' },
     ];
 
     return (
