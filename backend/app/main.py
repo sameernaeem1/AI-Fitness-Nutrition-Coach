@@ -12,7 +12,7 @@ app.include_router(auth.router)
 app.include_router(workouts.router)
 
 origins = [
-    "http://localhost:3000"
+    "http://localhost:5173"
 ]
 
 app.add_middleware(
