@@ -4,6 +4,8 @@ import { useAuth } from './hooks/useAuth';
 import SignUp from './pages/Auth/SignUp';
 import SignIn from './pages/Auth/SignIn';
 import Dashboard from './pages/Dashboard';
+import SelectEquipment from './components/profile/SelectEquipment';
+import SelectInjuries from './components/profile/SelectInjuries';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -21,6 +23,16 @@ function App() {
           <Routes>
             <Route path="/signup" element={<SignUp />} />
             <Route path="/signin" element={<SignIn />} />
+            <Route path="/profile/equipment" element={
+              <ProtectedRoute>
+                <SelectEquipment />
+              </ProtectedRoute>
+            } />
+          <Route path="/profile/injuries" element={
+              <ProtectedRoute>
+                <SelectInjuries />
+              </ProtectedRoute>
+            } />
             <Route
               path="/dashboard"
               element={

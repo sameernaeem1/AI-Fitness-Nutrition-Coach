@@ -44,7 +44,7 @@ export default function SignUp() {
         try {
             const response = await authService.signup(formData);
             await login(response.access_token);
-            navigate('/dashboard');
+            navigate('/profile/equipment?onboarding=true');
         } catch (err) {
             setError(err.response?.data?.detail || 'Sign up failed');
         } finally {
@@ -217,7 +217,7 @@ export default function SignUp() {
                     </div>
 
                     <div>
-                        <label className="block text-gray-700 font-semibold mb-2">Frequency</label>
+                        <label className="block text-gray-700 font-semibold mb-2">Frequency (Days/Week)</label>
                         <input
                             type="number"
                             name="frequency"
