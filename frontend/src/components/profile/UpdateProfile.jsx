@@ -1,67 +1,67 @@
 import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { useAuth } from '../../hooks/useAuth';
 import api from '../../services/api';
 
+const profileSchema = z.object({
+    first_name: z.string().min(1, 'First name is required'),
+    last_name: z.string().min(1, 'Last name is required'),
+    birth_date: z.string().refine((val) => {
+        const birthDate = new Date(val);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
+        return age >= 13 && age <= 100;
+    }, { message: 'Age must be between 13 and 100' }),
+    gender: z.enum(['male', 'female', 'other']),
+    height_cm: z.coerce.number().min(50).max(250),
+    weight_kg: z.coerce.number().min(20).max(500),
+    experience_level: z.enum(['beginner', 'intermediate', 'advanced']),
+    goal: z.enum(['cut', 'bulk', 'maintain']),
+    frequency: z.coerce.number().int().min(1).max(7),
+});
+
 export default function UpdateProfile() {
     const { user, setUser } = useAuth();
-    const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
 
-    const [formData, setFormData] = useState({
-        first_name: '',
-        last_name: '',
-        birth_date: '',
-        gender: '',
-        height_cm: '',
-        weight_kg: '',
-        experience_level: '',
-        goal: '',
-        frequency: '',
+    const {
+        register,
+        handleSubmit,
+        reset,
+        formState: { errors, isSubmitting },
+    } = useForm({
+        resolver: zodResolver(profileSchema),
+        values: {
+            first_name: user?.first_name || '',
+            last_name: user?.last_name || '',
+            birth_date: user?.birth_date || '',
+            gender: user?.gender || '',
+            height_cm: user?.height_cm || '',
+            weight_kg: user?.weight_kg || '',
+            experience_level: user?.experience_level || '',
+            goal: user?.goal || '',
+            frequency: user?.frequency || '',
+        }
     });
 
-    useEffect(() => {
-        if (user) {
-            setFormData({
-                first_name: user.first_name || '',
-                last_name: user.last_name || '',
-                birth_date: user.birth_date || '',
-                gender: user.gender || '',
-                height_cm: user.height_cm || '',
-                weight_kg: user.weight_kg || '',
-                experience_level: user.experience_level || '',
-                goal: user.goal || '',
-                frequency: user.frequency || '',
-            });
-        }
-    }, [user]);
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
+    const onSubmit = async (data) => {
         setMessage({ type: '', text: '' });
-
-        const payload = {
-            ...formData,
-            height_cm: parseFloat(formData.height_cm),
-            weight_kg: parseFloat(formData.weight_kg),
-            frequency: parseInt(formData.frequency)
-        };
-
         try {
-            const response = await api.put('/auth/me/profile', payload);
-            setUser(response.data)
+            const response = await api.put('/auth/me/profile', data);
+            setUser(response.data);
             setMessage({ type: 'success', text: 'Profile updated successfully!' });
         } catch (err) {
             setMessage({ type: 'error', text: 'Failed to update profile.' });
-        } finally {
-            setLoading(false);
         }
     };
+
+    const ErrorMsg = ({ name }) => (
+        errors[name] ? <p className="text-red-500 text-xs mt-1">{errors[name].message}</p> : null
+    );
 
     return (
         <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 max-w-4xl">
@@ -73,129 +73,119 @@ export default function UpdateProfile() {
                 </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700">First Name</label>
                         <input
-                        type="text"
-                            name="first_name"
-                            className="mt-1 w-full p-2 border rounded-md"
-                            value={formData.first_name}
-                            onChange={handleChange}
-                            required
+                            type="text"
+                            {...register('first_name')}
+                            className="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
                             placeholder="First Name"
                         />
+                        <ErrorMsg name="first_name" />
                     </div>
+
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Last Name</label>
                         <input
                             type="text"
-                            name="last_name"
-                            className="mt-1 w-full p-2 border rounded-md"
-                            value={formData.last_name}
-                            onChange={handleChange}
-                            required
+                            {...register('last_name')}
+                            className="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
                             placeholder="Last Name"
                         />
+                        <ErrorMsg name="last_name" />
                     </div>
+
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Birth Date</label>
                         <input
                             type="date"
-                            name="birth_date"
-                            className="mt-1 w-full p-2 border rounded-md"
-                            value={formData.birth_date}
-                            onChange={handleChange}
-                            required
+                            {...register('birth_date')}
+                            className="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
                         />
+                        <ErrorMsg name="birth_date" />
                     </div>
+
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Gender</label>
                         <select
-                            name="gender"
-                            className="mt-1 w-full p-2 border rounded-md"
-                            value={formData.gender}
-                            onChange={handleChange}
+                            {...register('gender')}
+                            className="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
                         >
-                            <option value="" disabled hidden>Select Gender</option>
+                            <option value="" diabled hidden>Select Gender</option>
                             <option value="male">Male</option>
                             <option value="female">Female</option>
                             <option value="other">Other</option>
                         </select>
+                        <ErrorMsg name="gender" />
                     </div>
+
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Height (cm)</label>
                         <input
                             type="number" step="0.01"
-                            name="height_cm"
-                            className="mt-1 w-full p-2 border rounded-md"
-                            value={formData.height_cm}
-                            onChange={handleChange}
-                            required
-                            placeholder="Height"
+                            {...register('height_cm')}
+                            className="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
                         />
+                        <ErrorMsg name="height_cm" />
                     </div>
+
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Weight (kg)</label>
                         <input
                             type="number" step="0.01"
-                            name="weight_kg"
-                            className="mt-1 w-full p-2 border rounded-md"
-                            value={formData.weight_kg}
-                            onChange={handleChange}
-                            required
-                            placeholder="Weight"
+                            {...register('weight_kg')}
+                            className="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
                         />
+                        <ErrorMsg name="weight_kg" />
                     </div>
+
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Experience Level</label>
                         <select
-                            name="experience_level"
-                            className="mt-1 w-full p-2 border rounded-md"
-                            value={formData.experience_level}
-                            onChange={handleChange}
+                            {...register('experience_level')}
+                            className="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
                         >
-                            <option value="" disabled hidden>Select Experience Level</option>
+                            <option value="" disabled hidden>Select Level</option>
                             <option value="beginner">Beginner</option>
                             <option value="intermediate">Intermediate</option>
                             <option value="advanced">Advanced</option>
                         </select>
+                        <ErrorMsg name="experience_level" />
                     </div>
+
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Goal</label>
                         <select
-                            name="goal"
-                            className="mt-1 w-full p-2 border rounded-md"
-                            value={formData.goal}
-                            onChange={handleChange}
+                            {...register('goal')}
+                            className="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
                         >
                             <option value="" disabled hidden>Select Goal</option>
                             <option value="cut">Cut</option>
                             <option value="bulk">Bulk</option>
                             <option value="maintain">Maintain</option>
                         </select>
-                    </div>   
+                        <ErrorMsg name="goal" />
+                    </div>
+
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Frequency (Days/Week)</label>
                         <input
                             type="number"
-                            name="frequency"
-                            className="mt-1 w-full p-2 border rounded-md"
-                            value={formData.frequency}
-                            onChange={handleChange}
-                            min="1" max="7"
-                            required
-                            placeholder="Frequency"
+                            {...register('frequency')}
+                            className="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
                         />
+                        <ErrorMsg name="frequency" />
                     </div>
                 </div>
+
                 <button
                     type="submit"
-                    disabled={loading}
+                    disabled={isSubmitting}
                     className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
                 >
-                    {loading ? 'Saving...' : 'Update Profile'}
+                    {isSubmitting ? 'Saving...' : 'Update Profile'}
                 </button>
             </form>
         </section>
