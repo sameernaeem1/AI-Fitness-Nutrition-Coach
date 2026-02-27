@@ -11,8 +11,9 @@ router = APIRouter(prefix="/workouts", tags=["workouts"])
 @router.get("/", response_model=list[WorkoutRead])
 def get_workouts(db: db_dependency, current_user = Depends(get_current_user)):
     workouts = db.query(Workout).filter(Workout.user_id == current_user.id).all()
-    if not workouts:
-        raise HTTPException(status_code=404, detail="No workouts found")
+    # User might go to calendar tab before generating plan
+    # if not workouts:
+    #     raise HTTPException(status_code=404, detail="No workouts found")
     return workouts
 
 
