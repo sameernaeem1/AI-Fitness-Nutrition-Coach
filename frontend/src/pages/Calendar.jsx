@@ -118,10 +118,13 @@ export default function Calendar() {
                     })}
                 </div>
             </div>
-            <WorkoutDetailModal
-                workout={selectedWorkout}
-                onClose={() => setSelectedWorkout(null)}
-            />
+            {selectedWorkout && (
+                <WorkoutDetailModal
+                    workout={selectedWorkout}
+                    onClose={() => setSelectedWorkout(null)}
+                    onUpdate={(updated) => setSelectedWorkout(updated)}
+                />
+            )}
         </div>
     );
 }
