@@ -36,7 +36,7 @@ export default function WorkoutDetailModal({ workout, onClose, onUpdate }) {
                     <h2 className="text-2xl font-bold text-gray-800">
                         Workout Plan for {new Date(localWorkout.date).toLocaleDateString()}
                     </h2>
-                    <button onClick={onClose} className="text-gray-500 hover:text-black text-2xl">&times;</button>
+                    <button onClick={onClose} className="bg-red-600 text-white hover:text-black text-2xl">&times;</button>
                 </div>
 
                 <div className="space-y-4">
@@ -59,7 +59,7 @@ export default function WorkoutDetailModal({ workout, onClose, onUpdate }) {
                                 <button
                                     onClick={() => handleSwap(index)}
                                     disabled={loadingIdx === index}
-                                    className="text-sm text-blue-600 hover:underline"
+                                    className="mt-2 px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 text-xs rounded-md hover:bg-amber-100 transition-colors"
                                 >
                                     {loadingIdx === index ? 'Swapping...' : 'Swap'}
                                 </button>

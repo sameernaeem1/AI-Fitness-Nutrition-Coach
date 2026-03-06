@@ -12,7 +12,7 @@ export default function Sidebar({ activeTab, setActiveTab }) {
 
     return (
         <div className = "bg-gray-900 text-white w-64 min-h-screen p-6">
-            <h2 className="text-2xl font-bold mb-8">Fitness Coach</h2>
+            <h2 className="text-2xl font-bold mb-8">AI Fitness Coach</h2>
 
             <nav className="space-y-4 mb-8">
                 {tabs.map(tab => (
