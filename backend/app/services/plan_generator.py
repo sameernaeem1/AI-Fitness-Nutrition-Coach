@@ -12,7 +12,7 @@ openai_api_key = os.getenv("OPENAI_API_KEY")
 
 client = OpenAI(api_key=openai_api_key)
 
-def generate_workout_plan(prompt):
+def call_ai(prompt):
     system_prompt = "You are a helpful assistant designed to output JSON. Do not include any markdown backticks in your response."
     response = client.chat.completions.create(
         model="gpt-4o",
@@ -23,7 +23,7 @@ def generate_workout_plan(prompt):
     return response.choices[0].message.content
 
 
-def build_prompt(profile, exercises):
+def build_workout_plan_prompt(profile, exercises):
     return f"""
     Create an effective 4 week workout plan specifically tailored for the user profile below. Your answer must be strictly JSON.
     Guide:
@@ -77,5 +77,33 @@ def build_prompt(profile, exercises):
         }}
         ]
     }}
+
+    """
+
+
+def build_swap_exercise_prompt(profile, exercises, current_exercise):
+    available = [
+        {
+            "id": e.id,
+            "name": e.name,
+            "muscle": e.target_muscle,
+            "equipment": e.equipment.name if e.equipment else None,
+        }
+        for e in exercises
+        if e.id != current_exercise.get("exercise_id")
+    ]
+    return f"""
+    Replace the exercise below with a biomechanically equivalent alternative from the provided available exercises.
+    Do not return the same exercise, choose a different movement that works the same primary muscle group(s).
+    Carefully choose the exercise so it is effective for the user given their profile: Gender: {profile.gender}, Height in cm: {profile.height_cm}, Weight in kg: {profile.weight_kg},
+    Goal: {profile.goal}, Experience Level: {profile.experience_level}, Equipment available: {[e.name for e in profile.equipment]}, Injuries sustained: {[i.name for i in profile.injuries]}.
+
+    Current exercise to replace:
+    {current_exercise}
+
+    Available exercises:
+    {available}
+
+    Return exactly one JSON object with the exact same keys as the current exercise.
 
     """

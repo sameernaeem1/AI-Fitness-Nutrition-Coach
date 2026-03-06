@@ -1,18 +1,46 @@
-export default function WorkoutDetailModal({ workout, onClose }) {
+import { useState, useEffect } from 'react';
+import { workoutService } from '../services/workoutService';
+
+export default function WorkoutDetailModal({ workout, onClose, onUpdate }) {
     if (!workout) return null;
+
+    const [localWorkout, setLocalWorkout] = useState(workout);
+    const [loadingIdx, setLoadingIdx] = useState(null);
+
+    useEffect(() => {
+        setLocalWorkout(workout);
+    }, [workout]);
+
+    const exercises = localWorkout.exercise_list?.exercises || localWorkout.exercises || [];
+
+    const handleSwap = async (index) => {
+        console.log("Swapping exercise at index:", index, "for workout ID:", localWorkout.id);
+        if (!localWorkout?.id) return;
+        setLoadingIdx(index);
+        try {
+            const updated = await workoutService.swapExercise(localWorkout.id, index);
+            console.log('swap response', updated);
+            setLocalWorkout(updated);
+            if (onUpdate) onUpdate(updated);
+        } catch (err) {
+            console.error('Swap failed', err);
+        } finally {
+            setLoadingIdx(null);
+        }
+    };
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl font-bold text-gray-800">
-                        Workout Plan for {new Date(workout.date).toLocaleDateString()}
+                        Workout Plan for {new Date(localWorkout.date).toLocaleDateString()}
                     </h2>
                     <button onClick={onClose} className="text-gray-500 hover:text-black text-2xl">&times;</button>
                 </div>
 
                 <div className="space-y-4">
-                    {workout.exercise_list.exercises.map((ex, index) => (
+                    {exercises.map((ex, index) => (
                         <div key={index} className="border-b pb-4 last:border-0">
                             <div className="flex justify-between font-bold text-lg text-blue-600">
                                 <span>{ex.name}</span>
@@ -27,6 +55,15 @@ export default function WorkoutDetailModal({ workout, onClose }) {
                                     {ex.notes}
                                 </p>
                             )}
+                            <div>
+                                <button
+                                    onClick={() => handleSwap(index)}
+                                    disabled={loadingIdx === index}
+                                    className="text-sm text-blue-600 hover:underline"
+                                >
+                                    {loadingIdx === index ? 'Swapping...' : 'Swap'}
+                                </button>
+                            </div>
                         </div>
                     ))}
                 </div>

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from backend.app.routes.auth import get_current_user, db_dependency
-from backend.app.services.workout_service import generate_and_store_plan
-from backend.app.schemas import WorkoutRead
+from backend.app.services.workout_service import generate_and_store_plan, smart_swap
+from backend.app.schemas import WorkoutRead, SwapExercise
 from backend.app.models import Workout
 from backend.app.database import get_db
 
@@ -34,3 +34,8 @@ async def generate_workouts(db: db_dependency, current_user = Depends(get_curren
         return {"message": "Workout plan created", "plan": plan}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/swap", response_model=WorkoutRead)
+def swap_workout_exercise(payload: SwapExercise, db: db_dependency, current_user = Depends(get_current_user)):
+    return smart_swap(payload, db, current_user)

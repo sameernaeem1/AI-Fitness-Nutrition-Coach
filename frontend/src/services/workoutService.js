@@ -15,5 +15,13 @@ export const workoutService = {
     getWorkoutById: async (id) => {
         const response = await api.get('/workouts/${id}');
         return response.data;
+    },
+
+    swapExercise: async (workoutId, exerciseIndex) => {
+        const response = await api.post('/workouts/swap', {
+            workout_id: workoutId,
+            exercise_index: exerciseIndex
+        });
+        return response.data;
     }
 };

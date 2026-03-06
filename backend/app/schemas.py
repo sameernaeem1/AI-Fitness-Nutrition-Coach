@@ -158,6 +158,11 @@ class WorkoutRead(WorkoutBase):
     class Config:
         from_attributes=True
 
+
+class SwapExercise(BaseModel):
+    workout_id: int
+    exercise_index: int
+
 # Will come back to the log stuff later to add calories macros portion ingredients health score
 class LogBase(BaseModel):
     type: LogType
