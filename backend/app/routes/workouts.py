@@ -37,5 +37,5 @@ async def generate_workouts(db: db_dependency, current_user = Depends(get_curren
 
 
 @router.post("/swap", response_model=WorkoutRead)
-def swap_workout_exercise(payload: SwapExercise, db: db_dependency, current_user = Depends(get_current_user)):
+async def swap_workout_exercise(payload: SwapExercise, db: db_dependency, current_user = Depends(get_current_user)):
     return smart_swap(payload, db, current_user)
