@@ -36,7 +36,7 @@ export default function WorkoutDetailModal({ workout, onClose, onUpdate }) {
                     <h2 className="text-2xl font-bold text-gray-800">
                         Workout Plan for {new Date(localWorkout.date).toLocaleDateString()}
                     </h2>
-                    <button onClick={onClose} className="bg-red-600 text-white hover:text-black text-2xl">&times;</button>
+                    <button onClick={onClose} className="bg-red-600 text-white hover:text-black text-lg rounded-none">&times;</button>
                 </div>
 
                 <div className="space-y-4">
