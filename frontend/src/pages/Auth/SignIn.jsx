@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useAuth } from '../../hooks/useAuth';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { authService } from '../../services/authService';
 
 const loginSchema = z.object({
@@ -12,6 +13,8 @@ const loginSchema = z.object({
 });
 
 export default function SignIn() {
+  useDocumentTitle('Sign In')
+
   const [serverError, setServerError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -40,7 +43,7 @@ export default function SignIn() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center p-4">
+    <div className="w-screen min-h-screen bg-[#334155] flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
         <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">Sign In</h1>
         

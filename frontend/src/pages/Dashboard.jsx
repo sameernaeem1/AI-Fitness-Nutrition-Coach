@@ -3,8 +3,10 @@ import Sidebar from '../components/Sidebar';
 import WorkoutPlan from './WorkoutPlan';
 import Calendar from './Calendar';
 import Settings from './Settings'
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export default function Dashboard() {
+    const [isCollapsed, setIsCollapsed] = useState(false);
     const [activeTab, setActiveTab] = useState(() => {
         return localStorage.getItem('lastTab') || 'plan';
     });
@@ -14,9 +16,11 @@ export default function Dashboard() {
         localStorage.setItem('lastTab', tab);
     };
 
+    useDocumentTitle(activeTab.charAt(0).toUpperCase() + activeTab.slice(1)); 
+
     return (
         <div className="flex h-screen">
-            <Sidebar activeTab={activeTab} setActiveTab={handleTabChange} />
+            <Sidebar activeTab={activeTab} setActiveTab={handleTabChange} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
             <div className="flex-1 bg-gray-100 overflow-auto">
                 <div className="p-8">
                     {activeTab === 'plan' && <WorkoutPlan setActiveTab={setActiveTab} />}

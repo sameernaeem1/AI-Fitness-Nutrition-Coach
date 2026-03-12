@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle'
 import api from '../../services/api';
 
 export default function SelectEquipment() {
@@ -12,6 +13,8 @@ export default function SelectEquipment() {
     const navigate = useNavigate();
     const isOnboarding = searchParams.get('onboarding') === 'true';
     const [selectedIds, setSelectedIds] = useState([]);
+
+    useDocumentTitle(isOnboarding ? "Equipment" : null);
 
     useEffect(() => {
         if(user?.equipment) {
@@ -52,13 +55,13 @@ export default function SelectEquipment() {
     if (loading) return <div className="p-8 text-center">Loading options...</div>;
 
     return (
-        <div className={isOnboarding ? "min-h-screen bg-gray-50 flex items-center justify-center p-4" : ""}>
-            <div className={`w-full ${isOnboarding ? 'max-w-2xl' : 'max-w-4xl'}`}>
+        <div className={isOnboarding ? "w-screen min-h-screen bg-[#334155] flex items-center justify-center p-4" : ""}>
+            <div className={`w-full mx-auto ${isOnboarding ? 'max-w-2xl' : 'max-w-4xl'}`}>
                 
                 {isOnboarding && (
                     <div className="text-center mb-8">
-                        <h1 className="text-3xl font-bold text-gray-800">Step 1: Your Equipment</h1>
-                        <p className="text-gray-600">Tell us what equipment you have so we can tailor your plan.</p>
+                        <h1 className="text-3xl font-bold text-white">Step 1: Your Equipment</h1>
+                        <p className="text-slate-200">Tell us what equipment you have so we can tailor your plan.</p>
                     </div>
                 )}
 

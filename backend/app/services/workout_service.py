@@ -60,18 +60,19 @@ def smart_swap(payload, db: Session, current_user):
 
     try:
         prompt = build_swap_exercise_prompt(profile, all_exercises, current_exercise)
-        ai_raw_response = call_ai(prompt)
+        ai_response = call_ai(prompt)
         
-        if isinstance(ai_raw_response, str):
-            new_exercise = json.loads(ai_raw_response)
+        if isinstance(ai_response, str):
+            new_exercise = json.loads(ai_response)
         else:
-            new_exercise = ai_raw_response
+            new_exercise = ai_response
 
         exercise_list[payload.exercise_index] = new_exercise
         
         current_data["exercises"] = exercise_list
         workout.exercise_list = current_data
 
+        # Would not update without this
         flag_modified(workout, "exercise_list")
         db.commit()
         db.refresh(workout)

@@ -81,9 +81,9 @@ export default function Calendar() {
 
             <div className="bg-white rounded-lg shadow p-6">
                 <div className="flex justify-between items-center mb-6">
-                    <button onClick={prevMonth} className="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">←</button>
+                    <button onClick={prevMonth} className="bg-blue-800 hover:bg-gray-400 px-4 py-2 rounded">←</button>
                     <h2 className="text-2xl font-bold text-gray-500">{monthName}</h2>
-                    <button onClick={nextMonth} className="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded">→</button>
+                    <button onClick={nextMonth} className="bg-blue-800 hover:bg-gray-400 px-4 py-2 rounded">→</button>
                 </div>
 
                 <div className="grid grid-cols-7 gap-2">
