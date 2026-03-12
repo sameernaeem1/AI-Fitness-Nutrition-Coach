@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { authService } from '../../services/authService';
 import { useAuth } from '../../hooks/useAuth';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 
 const signupSchema = z.object({
     email: z.string().email('Invalid email address'),
@@ -34,6 +35,8 @@ const signupSchema = z.object({
 });
 
 export default function SignUp() {
+    useDocumentTitle('Sign Up')
+
     const [serverError, setServerError] = useState('');
     const { login } = useAuth();
     const navigate = useNavigate();
@@ -76,7 +79,7 @@ export default function SignUp() {
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center p-4">
+        <div className="w-screen min-h-screen bg-[#334155] flex items-center justify-center p-4">
             <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
                 <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">Sign up</h1>
 
