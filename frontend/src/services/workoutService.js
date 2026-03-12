@@ -13,7 +13,7 @@ export const workoutService = {
     },
 
     getWorkoutById: async (id) => {
-        const response = await api.get('/workouts/${id}');
+        const response = await api.get(`/workouts/${id}`);
         return response.data;
     },
 
